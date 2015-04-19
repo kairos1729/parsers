@@ -122,7 +122,7 @@
 
         static void Main(string[] args)
         {
-            var y = Expr()("1 + 2 + 3 + 4 + 51");
+            var y = Expr()("1 + 2 + 3 + 4 + 51 + 25");
 
             if (y.Any())
             {

@@ -8,6 +8,12 @@
 
     public static class Utilities
     {
+        /// <summary>
+        /// "Unit" operation for IEnumerable Monad
+        /// </summary>
+        /// <typeparam name="T">Type of element in the <see cref="IEnumerable"/></typeparam>
+        /// <param name="value">value to lift</param>
+        /// <returns><paramref name="value"/> lifted to <see cref="IEnumerable"/></returns>
         public static IEnumerable<T> Yield<T>(this T value)
         {
             yield return value;
