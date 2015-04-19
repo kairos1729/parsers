@@ -19,6 +19,12 @@
             yield return value;
         }
 
+        /// <summary>
+        /// Convert enumerable to a comma separated list string
+        /// </summary>
+        /// <typeparam name="T">Type of element</typeparam>
+        /// <param name="s">The sequence</param>
+        /// <returns>comma separated string</returns>
         public static string ToCommaString<T>(this IEnumerable<T> s)
         {
             return string.Join(", ", s);
