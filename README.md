@@ -1,2 +1,2 @@
 # parsers
-Experiment with c# parser combinators in c#
+Experiment with c# parser combinators
