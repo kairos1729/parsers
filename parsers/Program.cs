@@ -8,6 +8,13 @@
 
     public class Program
     {
+        private static readonly Dictionary<string, int> RegisterValues = 
+            new Dictionary<string, int>
+            {
+                {"ONE", 1},
+                {"TWO", 2},
+            };
+
         public delegate IEnumerable<Tuple<T, string>> Parser<T>(string s);
 
         public static readonly Parser<char> item =
@@ -79,7 +86,7 @@
 
         public static Parser<char> Whitespace()
         {
-            return Satisfies(c => char.IsWhiteSpace(c));
+            return Satisfies(char.IsWhiteSpace);
         }
 
         public static Parser<IEnumerable<char>> Whitespaces()
@@ -105,7 +112,7 @@
             return from digits in Many(Digit())
                    from result in int.TryParse(
                         new string(digits.ToArray()), out value)
-                            ? Return(value)
+                            ? value.Unit()
                             : Failure<int>()
                    select result;
         }
@@ -113,16 +120,48 @@
         public static Parser<int> Expr()
         {
             return Choice(
-                from left in Token(NaturalNumber())
-                from _ in Token(Char('+'))
-                from right in Expr()
-                select left + right,
-                Token(NaturalNumber()));
+                    from left in Token(Fact())
+                    from _ in Token(Char('+'))
+                    from right in Expr()
+                    select left + right,
+                    Fact());
+        }
+
+        public static Parser<int> Fact()
+        {
+            return Choice(
+                from left in Atom()
+                from _ in Token(Char('*'))
+                from right in Fact()
+                select left * right,
+                Atom());
+        }
+
+        public static Parser<int> Atom()
+        {
+            return Choice(
+                Choice(
+                    from _ in Token(Char('('))
+                    from e in Expr()
+                    from __ in Token(Char(')'))
+                    select e,
+                    Token(NaturalNumber())),
+                    Token(Register()));
+        }
+
+        public static Parser<int> Register()
+        {
+            return from r in Many1(Satisfies(char.IsUpper))
+                   let rs = new string(r.ToArray())
+                   from result in RegisterValues.ContainsKey(rs)
+                   ? Return(RegisterValues[rs])
+                   : Failure<int>()
+                   select result;
         }
 
         static void Main(string[] args)
         {
-            var y = Expr()("1 + 2 + 3 + 4 + 51 + 2");
+            var y = Expr()("(1 + 2) * 3 * ((4 + 50 + ONEX) * (TWO + ONE))");
 
             if (y.Any())
             {
